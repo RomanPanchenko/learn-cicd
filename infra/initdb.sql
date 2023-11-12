@@ -18,12 +18,12 @@ create table books
     id        int          not null,
     author_id int          not null,
     name      varchar(200) not null,
-    constraint books_pk primary key (id)
+    constraint books_pk primary key (id, author_id)
 );
 
 insert into books (id, author_id, name)
 values (1, 1, 'John Book 1'),
        (2, 1, 'John Book 2'),
        (3, 1, 'John Book 3'),
-       (4, 2, 'Jane Book 1'),
-       (5, 2, 'Jane Book 2');
+       (1, 2, 'Jane Book 1'),
+       (2, 2, 'Jane Book 2');
