@@ -1,0 +1,56 @@
+version: "3.9"
+services:
+  mysqldb:
+    image: mysql:8.1
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "root"
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./initdb.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./mysql-data:/var/lib/mysql
+    container_name: author-app-mysqldb
+    networks:
+      - learn_cicd_net
+
+  author-app:
+    platform: linux/amd64
+    depends_on:
+      - mysqldb
+      - book-app
+    build:
+      context: ./../author-app
+      dockerfile: Dockerfile
+    volumes:
+      - ./../author-app:/app
+    environment:
+      NODE_ENV: development
+    container_name: author-app-server
+    ports:
+      - "3001:3001"
+      - "9221:9221"
+    networks:
+      - learn_cicd_net
+
+  book-app:
+    platform: linux/amd64
+    depends_on:
+      - mysqldb
+    build:
+      context: ./../book-app
+      dockerfile: Dockerfile
+    volumes:
+      - ./../book-app:/app
+    environment:
+      NODE_ENV: development
+    container_name: book-app-server
+    ports:
+      - "3002:3002"
+      - "9222:9222"
+    networks:
+      - learn_cicd_net
+
+networks:
+  learn_cicd_net:
+    external: true

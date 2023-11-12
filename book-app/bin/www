@@ -1,0 +1,14 @@
+#!/usr/bin/env node
+
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+process.env.NODE_CONFIG_DIR = require('path').resolve(__dirname, './../config');
+
+const app = require('./../app');
+const config = require("config");
+
+const host = config.get('host');
+const port = config.get('port');
+
+app.listen(port, host, () => {
+  console.log(`Server is running on http://${host}:${port}`);
+});

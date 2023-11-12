@@ -1,0 +1,23 @@
+{
+  "name": "author-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "cross-env NODE_ENV=development TZ=UTC nodemon --ignore ./tmp --inspect=0.0.0.0:9221 bin/www"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.1",
+    "config": "^3.3.6",
+    "cross-env": "^7.0.3",
+    "express": "^4.17.3",
+    "express-promise-router": "^4.1.0",
+    "mysql2": "^3.6.3",
+    "sequelize": "^6.35.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
