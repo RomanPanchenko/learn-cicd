@@ -40,7 +40,7 @@ resource "aws_security_group" "author_sg" {
   vpc_id      = aws_default_vpc.default.id
 
   ingress {
-    from_port   = 0
+    from_port   = 3001
     to_port     = 3001
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
@@ -52,6 +52,10 @@ resource "aws_security_group" "author_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  tags = {
+    Name = "Author App Security Group"
+  }
 }
 
 resource "aws_security_group" "book_sg" {
@@ -60,7 +64,7 @@ resource "aws_security_group" "book_sg" {
   vpc_id      = aws_default_vpc.default.id
 
   ingress {
-    from_port   = 0
+    from_port   = 3002
     to_port     = 3002
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
@@ -71,6 +75,10 @@ resource "aws_security_group" "book_sg" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "Book App Security Group"
   }
 }
 
