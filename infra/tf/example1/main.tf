@@ -1,9 +1,6 @@
 provider "aws" {
   region = "us-east-2"
 
-#  access_key = "AKIARCHBNSN4II5XL2FS"
-#  secret_key = "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"
-
   default_tags {
     tags = {
       Project = "Learn CI/CD"
