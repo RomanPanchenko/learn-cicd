@@ -3,7 +3,8 @@ sudo yum update -y
 
 # Install Docker
 sudo yum install docker -y
-sudo service docker start
+sudo systemctl enable docker
+sudo systemctl start docker
 sudo usermod -a -G docker ec2-user
 
 # Install Git
@@ -23,6 +24,7 @@ sudo yum install jenkins -y
 
 sudo systemctl enable jenkins
 sudo systemctl start jenkins
+sudo usermod -aG docker jenkins
 
 
 

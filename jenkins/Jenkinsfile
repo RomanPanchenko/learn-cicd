@@ -1,0 +1,91 @@
+pipeline {
+    agent any
+
+    environment {
+        ECR_REPO = 'author_repo'
+        AWS_ACCOUNT_NUMBER = '073487192952'
+        GIT_REPO_URL = 'https://github.com/RomanPanchenko/learn-cicd.git'
+        PROJECT_FOLDER = 'author-app'
+        AWS_ACCESS_KEY_ID = credentials('learn-cicd-AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('learn-cicd-AWS_SECRET_ACCESS_KEY')
+        AWS_REGION = 'us-east-2'
+        TAG = ''
+        REVISION = ''
+        imageExists = ''
+    }
+
+    stages {
+        stage('Checkout Source Code') {
+            steps {
+                script {
+                    echo "Workdir cleanup"
+                    deleteDir()
+
+                    echo "Use git to clone the repository without credentials"
+                    git url: GIT_REPO_URL, branch: 'main'
+
+                    echo "Obtain Git commit hash"
+                    def gitHash = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+                    echo "Git Hash: ${gitHash}"
+
+                    REVISION = gitHash
+                    def ID = UUID.randomUUID().toString()[-12..-1]
+                    TAG = "${REVISION[0..7]}-${ID}"
+                    echo "TAG: ${TAG}"
+                }
+            }
+        }
+
+        stage('Check Image Existence in ECR') {
+            steps {
+                script {
+                    echo "Check if docker image for REVISION ${REVISION[0..7]} already exist on ECR"
+                    imageExists = sh(script: """
+                        aws ecr describe-images --repository-name author_repo | jq -r '.imageDetails[0].imageTags[0]' | grep ${REVISION[0..7]}-
+                    """, returnStatus: true)
+
+                    if (imageExists == 0) {
+                        echo "Image already exists in ECR."
+                        currentBuild.result = 'SUCCESS'
+                        return
+                    }
+                }
+            }
+        }
+
+        stage('Build docker image') {
+            when {
+                expression { imageExists != 0 }
+            }
+            steps {
+                script {
+                    echo "Navigate to the project folder: ${PROJECT_FOLDER}"
+                    dir(PROJECT_FOLDER) {
+                        echo "Build Docker image and tag with Git hash: ${ECR_REPO}:${TAG}"
+                        docker.build("${ECR_REPO}:${TAG}")
+                    }
+                }
+            }
+        }
+
+        stage('Push to ECR') {
+            when {
+                expression { imageExists != 0 }
+            }
+            steps {
+                script {
+                    echo "Login to AWS ECR"
+                    sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_NUMBER}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+
+                    def TARGET_AWS_REPO_URI = "${AWS_ACCOUNT_NUMBER}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}:${TAG}"
+
+                    echo "Tag image ${ECR_REPO}:${TAG} as ${TARGET_AWS_REPO_URI}"
+                    sh "docker tag ${ECR_REPO}:${TAG} ${TARGET_AWS_REPO_URI}"
+
+                    echo "Push ${TARGET_AWS_REPO_URI}"
+                    docker.image(TARGET_AWS_REPO_URI).push()
+                }
+            }
+        }
+    }
+}
