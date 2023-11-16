@@ -41,7 +41,9 @@ pipeline {
                 script {
                     echo "Check if docker image for REVISION ${REVISION[0..7]} already exist on ECR"
                     imageExists = sh(script: """
-                        aws ecr describe-images --repository-name author_repo | jq -r '.imageDetails[0].imageTags[0]' | grep ${REVISION[0..7]}-
+                        aws ecr describe-images --repository-name author_repo |
+                        jq -r '.imageDetails[0].imageTags[0]' |
+                        grep ${REVISION[0..7]}-
                     """, returnStatus: true)
 
                     if (imageExists == 0) {

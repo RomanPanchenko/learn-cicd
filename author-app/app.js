@@ -1,4 +1,3 @@
-const config = require('config');
 const app = require('express')();
 const router = require('express-promise-router')();
 
