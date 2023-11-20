@@ -9,12 +9,14 @@ variable "launch_template_name" {
 
 variable "ami_owner" {
   type    = string
-  default = "679593333241"
+  default = "137112412989"
+  #  default = "679593333241"
 }
 
 variable "ami_filter_values" {
   type    = list(string)
-  default = ["Amazon ECS-Optimized Amazon Linux 2 AMI with Support by Terracloudx *"]
+  default = ["al2023-ami-2023.*-x86_64"]
+  #  default = ["Amazon ECS-Optimized Amazon Linux 2 AMI with Support by Terracloudx *"]
 }
 
 variable "instance_type" {
@@ -42,6 +44,10 @@ variable "ecs_cluster_id" {
 variable "asg_launch_template_name" {
   type    = string
   default = "ECS ASG Launch Template"
+}
+
+variable "auto_scaling_group_name" {
+  type = string
 }
 
 variable "vpc_id" {

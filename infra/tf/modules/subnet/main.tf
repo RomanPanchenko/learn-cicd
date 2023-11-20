@@ -8,6 +8,6 @@ resource "aws_subnet" "subnet" {
   availability_zone       = var.subnet_az
   map_public_ip_on_launch = false
   tags                    = {
-    Name = "${var.subnet_name} (${var.env})"
+    Name = "${var.subnet_name}-${var.env}"
   }
 }

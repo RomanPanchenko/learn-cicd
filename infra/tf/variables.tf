@@ -15,7 +15,7 @@ variable "instance_name" {
 
 variable "launch_template_name" {
   type    = string
-  default = "My Launch Template"
+  default = "My-Launch-Template"
 }
 
 variable "min_instance_count" {
@@ -36,7 +36,7 @@ variable "max_instance_count" {
 #----------------------------------------------------
 variable "vpc_name" {
   type    = string
-  default = "My VPC"
+  default = "My-VPC"
 }
 
 variable "vpc_cidr" {
@@ -46,7 +46,7 @@ variable "vpc_cidr" {
 
 variable "subnet_name" {
   type    = string
-  default = "My Subnet"
+  default = "My-Subnet"
 }
 
 variable "subnet_cidr" {
@@ -56,7 +56,7 @@ variable "subnet_cidr" {
 
 variable "security_group_name" {
   type    = string
-  default = "WebServer Security Group"
+  default = "WebServer-Security-Group"
 }
 
 variable "security_group_description" {
@@ -71,7 +71,42 @@ variable "security_group_ingress_ports" {
 
 variable "ecs_cluster_name" {
   type    = string
-  default = "My ECS Cluster"
+  default = "My-ECS-Cluster"
+}
+
+variable "ecs_service_name" {
+  type    = string
+  default = "My-ECS-Service"
+}
+
+variable "desired_container_count" {
+  type    = number
+  default = 2
+}
+
+variable "task_cpu" {
+  type    = number
+  default = 1600
+}
+
+variable "task_memory" {
+  type    = number
+  default = 600
+}
+
+variable "task_network_mode" {
+  type    = string
+  default = "bridge"
+}
+
+variable "container_cpu" {
+  type    = number
+  default = 800
+}
+
+variable "container_memory" {
+  type    = number
+  default = 300
 }
 
 variable "task_family" {
@@ -85,13 +120,18 @@ variable "container_image" {
 }
 
 variable "container_ports" {
-  type    = list(string)
-  default = ["3001"]
+  type    = list(number)
+  default = [3001]
 }
 
 variable "env" {
   type    = string
   default = "development"
+}
+
+variable "auto_scaling_group_name" {
+  type    = string
+  default = "ASG"
 }
 
 variable "project" {

@@ -7,13 +7,11 @@ variable "ecs_cluster_id" {
 }
 
 variable "ecs_service_name" {
-  type    = string
-  default = "ECS Service"
+  type = string
 }
 
 variable "desired_container_count" {
-  type    = number
-  default = 2
+  type = number
 }
 
 variable "subnet_ids" {
@@ -29,32 +27,27 @@ variable "task_family" {
 }
 
 variable "task_cpu" {
-  type    = number
-  default = 1600
+  type = number
 }
 
 variable "task_memory" {
-  type    = number
-  default = 600
+  type = number
 }
 
 variable "task_network_mode" {
-  type    = string
-  default = "bridge"
+  type = string
 }
 
 variable "container_cpu" {
-  type    = number
-  default = 800
+  type = number
 }
 
 variable "container_memory" {
-  type    = number
-  default = 300
+  type = number
 }
 
 variable "container_ports" {
-  type = list(string)
+  type = list(number)
 }
 
 variable "container_name" {

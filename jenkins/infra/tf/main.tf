@@ -62,7 +62,7 @@ resource "aws_instance" "jenkins_instance" {
   })
 
   tags = {
-    Name = "Jenkins Server ${var.instance_name} (${var.env})"
+    Name = "Jenkins Server ${var.instance_name}-${var.env}"
   }
 }
 

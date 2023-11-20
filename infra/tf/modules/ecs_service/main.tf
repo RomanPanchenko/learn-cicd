@@ -16,6 +16,7 @@ resource "aws_ecs_task_definition" "task" {
       cpu          = var.container_cpu
       memory       = var.container_memory
       essential    = true
+      environment : [{ name : "NODE_ENV", value : var.env }],
       portMappings = [
         for port in var.container_ports : {
           containerPort = port
@@ -25,7 +26,7 @@ resource "aws_ecs_task_definition" "task" {
   ])
 
   tags = {
-    Name = "${var.task_family} task definition (${var.env})"
+    Name = "${var.task_family} task definition ${var.env}"
   }
 }
 
@@ -35,9 +36,4 @@ resource "aws_ecs_service" "service" {
   task_definition = aws_ecs_task_definition.task.arn
   launch_type     = "EC2"
   desired_count   = var.desired_container_count
-
-  network_configuration {
-    subnets         = var.subnet_ids
-    security_groups = var.security_groups
-  }
 }

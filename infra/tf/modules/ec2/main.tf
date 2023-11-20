@@ -26,6 +26,6 @@ resource "aws_instance" "ec2_instance" {
   user_data = templatefile("user_data.sh.tpl")
 
   tags = {
-    Name = "${var.instance_name} (${var.env})"
+    Name = "${var.instance_name}-${var.env}"
   }
 }

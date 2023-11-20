@@ -47,30 +47,38 @@ module "ecs_cluster" {
 }
 
 module "ecs_asg" {
-  source                 = "./modules/ecs_asg"
-  region                 = var.region
-  env                    = var.env
-  ecs_cluster_id         = module.ecs_cluster.ecs_cluster_id
-  vpc_id                 = module.vpc.vpc_id
-  subnet_ids             = [module.subnet.subnet_id]
-  security_groups        = [module.security_group.aws_security_group_id]
-  instance_type          = var.instance_type
-  instance_name          = var.instance_name
-  launch_template_name   = var.launch_template_name
-  min_instance_count     = var.min_instance_count
-  desired_instance_count = var.desired_instance_count
-  max_instance_count     = var.max_instance_count
+  source                  = "./modules/ecs_asg"
+  region                  = var.region
+  env                     = var.env
+  ecs_cluster_id          = module.ecs_cluster.ecs_cluster_id
+  vpc_id                  = module.vpc.vpc_id
+  subnet_ids              = [module.subnet.subnet_id]
+  security_groups         = [module.security_group.aws_security_group_id]
+  instance_type           = var.instance_type
+  instance_name           = var.instance_name
+  launch_template_name    = var.launch_template_name
+  min_instance_count      = var.min_instance_count
+  desired_instance_count  = var.desired_instance_count
+  max_instance_count      = var.max_instance_count
+  auto_scaling_group_name = var.auto_scaling_group_name
 }
 
 module "ecs_service" {
-  source          = "./modules/ecs_service"
-  region          = var.region
-  env             = var.env
-  task_family     = var.task_family
-  container_name  = var.task_family
-  container_image = var.container_image
-  ecs_cluster_id  = module.ecs_cluster.ecs_cluster_id
-  container_ports = var.container_ports
-  security_groups = [module.security_group.aws_security_group_id]
-  subnet_ids      = [module.subnet.subnet_id]
+  source                  = "./modules/ecs_service"
+  region                  = var.region
+  env                     = var.env
+  ecs_service_name        = var.ecs_service_name
+  task_cpu                = var.task_cpu
+  task_memory             = var.task_memory
+  task_network_mode       = var.task_network_mode
+  task_family             = var.task_family
+  container_name          = var.task_family
+  container_image         = var.container_image
+  desired_container_count = var.desired_container_count
+  container_cpu           = var.container_cpu
+  container_memory        = var.container_memory
+  ecs_cluster_id          = module.ecs_cluster.ecs_cluster_id
+  container_ports         = var.container_ports
+  security_groups         = [module.security_group.aws_security_group_id]
+  subnet_ids              = [module.subnet.subnet_id]
 }
