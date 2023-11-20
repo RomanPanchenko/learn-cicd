@@ -1,3 +1,7 @@
+provider "aws" {
+  region = var.region
+}
+
 resource "aws_ecs_task_definition" "task" {
   family                   = var.task_family
   network_mode             = var.task_network_mode

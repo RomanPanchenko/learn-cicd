@@ -5,7 +5,3 @@ output "ecs_cluster_id" {
 output "ecs_cluster_name" {
   value = aws_ecs_cluster.ecs_cluster.name
 }
-
-output "ecs_cluster_instance_ids" {
-  value = aws_ecs_instance.ec2_instance[*].id
-}

@@ -1,3 +1,7 @@
+provider "aws" {
+  region = var.region
+}
+
 resource "aws_eip" "ec2_instance_eip" {
   count    = length(var.ec2_instance_ids)
   instance = element(var.ec2_instance_ids, count.index)

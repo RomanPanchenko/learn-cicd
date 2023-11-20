@@ -1,6 +1,10 @@
+provider "aws" {
+  region = var.region
+}
+
 resource "aws_security_group" "sg" {
-  name        = var.vpc_name
-  description = var.vpc_description
+  name        = var.security_group_name
+  description = var.security_group_description
   vpc_id      = var.vpc_id
 
   dynamic "ingress" {

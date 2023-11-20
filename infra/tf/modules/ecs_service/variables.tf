@@ -1,3 +1,7 @@
+variable "region" {
+  type = string
+}
+
 variable "ecs_cluster_id" {
   type = string
 }
@@ -13,13 +17,11 @@ variable "desired_container_count" {
 }
 
 variable "subnet_ids" {
-  type    = list(string)
-  default = []
+  type = list(string)
 }
 
 variable "security_groups" {
-  type    = list(string)
-  default = []
+  type = list(string)
 }
 
 variable "task_family" {
@@ -52,8 +54,7 @@ variable "container_memory" {
 }
 
 variable "container_ports" {
-  type    = list(string)
-  default = []
+  type = list(string)
 }
 
 variable "container_name" {
@@ -65,6 +66,5 @@ variable "container_image" {
 }
 
 variable "env" {
-  type    = string
-  default = "development"
+  type = string
 }

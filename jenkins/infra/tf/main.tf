@@ -9,80 +9,59 @@ provider "aws" {
   }
 }
 
+locals {
+  env = "development"
+}
 
 data "aws_availability_zones" "available" {}
 
-data "aws_ami" "latest_aws_linux_2023" {
-  owners      = ["137112412989"]
-  most_recent = true
-  filter {
-    name   = "name"
-    values = ["al2023-ami-2023.*-x86_64"]
-  }
+module "vpc" {
+  source   = "./modules/vpc"
+  env      = local.env
+  vpc_cidr = "10.0.0.0/16"
+  vpc_name = "My VPC"
 }
 
-resource "aws_default_vpc" "default" {}
-
-resource "aws_security_group" "jenkins_sg" {
-  name        = "jenkins-security-group"
-  description = "Jenkins Security Group"
-  vpc_id      = aws_default_vpc.default.id
-
-  dynamic "ingress" {
-    for_each = toset(["22", "8080"])
-
-    content {
-      from_port   = ingress.value
-      to_port     = ingress.value
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
-    }
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "Jenkins Security Group"
-  }
+module "subnet" {
+  source      = "./modules/subnet"
+  env         = local.env
+  vpc_id      = module.vpc.vpc_id
+  subnet_name = "My Private Subnet"
+  subnet_cidr = "10.0.1.0/24"
+  subnet_az   = data.aws_availability_zones.available.names[0]
 }
 
-resource "aws_instance" "jenkins_instance" {
-  ami                    = data.aws_ami.latest_aws_linux_2023.id
-  instance_type          = var.instance_type
-  availability_zone      = data.aws_availability_zones.available.names[0]
-  vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
-
-  user_data = templatefile("user_data.sh.tpl", {
-    docker_image_uri = "Jenkins Docker URI",
-  })
-
-  tags = {
-    Name = "Jenkins Server ${var.instance_name} (${var.env})"
-  }
+module "security_group" {
+  source                     = "./modules/security_group"
+  env                        = local.env
+  security_group_name        = "WebServer Security Group"
+  security_group_description = "SSH, HTTP, HTTPS"
+  vpc_id                     = module.vpc.vpc_id
+  ingress_ports              = ["22", "80", "443"]
 }
 
-resource "aws_eip" "jenkins_eip" {
-  instance = aws_instance.jenkins_instance.id
+module "ecs_cluster" {
+  source           = "./modules/ecs_cluster"
+  env              = local.env
+  ecs_cluster_name = "My ECS Cluster"
 }
 
-resource "aws_eip_association" "jenkins_eip_assoc" {
-  instance_id   = aws_instance.jenkins_instance.id
-  allocation_id = aws_eip.jenkins_eip.id
+module "ecs_asg" {
+  source          = "./modules/ecs_asg"
+  env             = local.env
+  ecs_cluster_id  = module.ecs_cluster.ecs_cluster_id
+  vpc_id          = module.vpc.vpc_id
+  security_groups = [module.security_group.aws_security_group_id]
 }
 
-data "aws_route53_zone" "rpanchenko123_com" {
-  name = "rpanchenko123.com"
-}
-
-resource "aws_route53_record" "jenkins_route53_record" {
-  name    = "jenkins.rpanchenko123.com"
-  type    = "A"
-  zone_id = data.aws_route53_zone.rpanchenko123_com.id
-  records = [aws_eip.jenkins_eip.public_ip]
-  ttl     = "300"
+module "ecs_service" {
+  source          = "./modules/ecs_service"
+  env             = local.env
+  task_family     = "author-app"
+  container_name  = "author-app"
+  container_image = "073487192952.dkr.ecr.us-east-2.amazonaws.com/author_repo:75039650-0f8768fc4ff9"
+  ecs_cluster_id  = module.ecs_cluster.ecs_cluster_id
+  container_ports = ["80"]
+  security_groups = [module.security_group.aws_security_group_id]
+  subnet_ids      = [module.subnet.subnet_id]
 }

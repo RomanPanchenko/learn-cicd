@@ -1,29 +1,31 @@
-terraform {
-  backend "s3" {
-    bucket = "${var.remote_state_bucket}"
-    key    = "${var.project}/${var.env}/terraform.tfstate"
-    region = "${var.remote_state_region}"
-  }
+provider "aws" {
+  region = var.region
 }
 
-data "aws_availability_zones" "available" {}
+data "aws_availability_zones" "az" {}
 
-data "aws_ami" "latest_aws_linux_2023" {
-  owners      = ["137112412989"]
+data "aws_ami" "latest_instance" {
+  owners      = var.aws_ami_owner
   most_recent = true
   filter {
     name   = "name"
-    values = ["al2023-ami-2023.*-x86_64"]
+    values = var.aws_ami_filter_values
   }
 }
 
-resource "aws_instance" "instance" {
-  count             = length(data.aws_availability_zones.available.names)
-  ami               = data.aws_ami.latest_aws_linux_2023.id
+resource "aws_default_vpc" "default" {}
+
+resource "aws_instance" "ec2_instance" {
+  count             = var.instance_count
+  ami               = data.aws_ami.latest_instance.id
   instance_type     = var.instance_type
-  availability_zone = data.aws_availability_zones.available.names[count.index]
+#  key_name          = var.key_name
+  availability_zone = element(data.aws_availability_zones.az.names, count.index % length(data.aws_availability_zones.az.names))
+  security_groups   = var.security_groups
+
+  user_data = templatefile("user_data.sh.tpl")
 
   tags = {
-    Name = "${var.instance_name} ${count.index + 1} (${var.env})"
+    Name = "${var.instance_name} (${var.env})"
   }
 }
