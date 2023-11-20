@@ -12,15 +12,16 @@ data "aws_ami" "latest_instance" {
 resource "aws_default_vpc" "default" {}
 
 resource "aws_instance" "ec2_instance" {
-  count                  = var.instance_count
-  ami                    = data.aws_ami.latest_instance.id
-  instance_type          = var.instance_type
-  availability_zone      = element(data.aws_availability_zones.az.names, count.index % length(data.aws_availability_zones.az.names))
-  security_groups        = var.security_groups
+  count             = var.instance_count
+  ami               = data.aws_ami.latest_instance.id
+  instance_type     = var.instance_type
+  key_name          = var.key_name
+  availability_zone = element(data.aws_availability_zones.az.names, count.index % length(data.aws_availability_zones.az.names))
+  security_groups   = var.security_groups
 
   user_data = templatefile("user_data.sh.tpl")
 
   tags = {
-    Name = "${var.instance_name} - ${var.env}"
+    Name = "${var.instance_name} (${var.env})"
   }
 }

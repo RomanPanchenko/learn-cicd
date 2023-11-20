@@ -1,12 +1,24 @@
-resource "aws_autoscaling_group" "my_asg" {
-  desired_capacity     = var.instance_count
-  max_size             = var.instance_count
-  min_size             = var.instance_count
-  vpc_zone_identifier = data.aws_subnet_ids.ids
+data "aws_subnet_ids" "subnets" {
+  vpc_id = var.vpc_id
+}
+
+resource "aws_launch_template" "launch_template" {
+  name                   = var.launch_template_name
+  instance_type          = var.instance_type
+  key_name               = var.key_name
+  vpc_security_group_ids = var.security_groups
+}
+
+resource "aws_autoscaling_group" "asg" {
+  desired_capacity    = var.desired_instance_count
+  max_size            = var.max_instance_count
+  min_size            = var.min_instance_count
+  vpc_zone_identifier = data.aws_subnet_ids.subnets.ids
 
   launch_template {
-    id      = aws_launch_template.my_launch_template.id
+    id      = aws_launch_template.launch_template.id
     version = "$Latest"
+    name = "${var.asg_launch_template_name} (${var.env})"
   }
 
   lifecycle {
@@ -14,36 +26,24 @@ resource "aws_autoscaling_group" "my_asg" {
   }
 }
 
-resource "aws_launch_template" "my_launch_template" {
-  name = "my-launch-template"
-
-  block_device_mappings {
-    device_name = "/dev/sda1"
-    ebs {
-      volume_size = 30
-    }
+data "aws_ami" "latest_instance" {
+  owners      = var.aws_ami_owner
+  most_recent = true
+  filter {
+    name   = "name"
+    values = var.aws_ami_filter_values
   }
-
-  instance_type          = var.instance_type
-  key_name               = var.key_name
-  vpc_security_group_ids = var.security_groups
-}
-
-resource "aws_ecs_cluster" "my_cluster" {
-  name = "my-ecs-cluster"
 }
 
 resource "aws_ecs_instance" "ec2_instances" {
-  count = length(var.ec2_instance_ids)
-
+  count           = var.desired_instance_count
   ami             = data.aws_ami.latest_instance.id
   instance_type   = var.instance_type
-  subnet_id       = element(data.aws_subnet_ids.ids, count.index % length(data.aws_subnet_ids.ids))
+  subnet_id       = element(data.aws_subnet_ids.subnets.ids, count.index % length(data.aws_subnet_ids.subnets.ids))
   security_groups = var.security_groups
-
-  cluster = aws_ecs_cluster.my_cluster.id
+  cluster         = var.ecs_cluster_id
 
   tags = {
-    Name = "ECS-Instance-${count.index + 1}"
+    Name = "${var.instance_name}-${count.index + 1} (${var.env})"
   }
 }

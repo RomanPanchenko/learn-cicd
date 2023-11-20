@@ -3,7 +3,7 @@ variable "ecs_cluster_name" {
   default = "Cluster"
 }
 
-variable "instance_subnet_id" {
+variable "subnet_id" {
   type = string
 }
 
@@ -17,7 +17,7 @@ variable "instance_count" {
   default = 2
 }
 
-variable "instance_security_groups" {
+variable "security_groups" {
   type    = list(string)
   default = []
 }
@@ -37,7 +37,7 @@ variable "ami_filter_values" {
   default = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-2023*"]
 }
 
-variable "instance_ssh_key_name" {
+variable "key_name" {
   type    = string
   default = ""
 }

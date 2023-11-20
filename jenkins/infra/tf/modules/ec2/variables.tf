@@ -23,6 +23,11 @@ variable "instance_name" {
   default = "Server"
 }
 
+variable "key_name" {
+  type    = string
+  default = ""
+}
+
 variable "security_groups" {
   type    = list(string)
   default = []

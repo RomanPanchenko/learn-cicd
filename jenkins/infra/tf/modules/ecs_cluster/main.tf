@@ -10,16 +10,16 @@ data "aws_ami" "latest_instance" {
 }
 
 resource "aws_ecs_cluster" "ecs_cluster" {
-  name = "${var.ecs_cluster_name} - ${var.env}"
+  name = "${var.ecs_cluster_name} (${var.env})"
 }
 
 resource "aws_ecs_instance" "ec2_instance" {
   count           = var.instance_count
   ami             = data.aws_ami.latest_instance.id
   instance_type   = var.instance_type
-  key_name        = var.instance_ssh_key_name
-  subnet_id       = var.instance_subnet_id
-  security_groups = var.instance_security_groups
+  key_name        = var.key_name
+  subnet_id       = var.subnet_id
+  security_groups = var.security_groups
 
   cluster = aws_ecs_cluster.ecs_cluster.id
 
