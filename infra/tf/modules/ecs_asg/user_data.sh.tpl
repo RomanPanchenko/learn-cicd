@@ -3,7 +3,10 @@ sudo yum update -y
 
 # Install ECS Agent
 sudo yum install -y ecs-init
-sudo start ecs
+sudo ecs-cli configure --cluster $cluster_name --region $region
+sudo systemctl enable ecs
+sudo systemctl start ecs
+
 
 # Install Docker
 sudo yum install docker -y
